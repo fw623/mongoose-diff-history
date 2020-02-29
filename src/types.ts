@@ -1,6 +1,6 @@
 import { Document, Schema, ConnectionOptions, Model } from 'mongoose'
 
-export interface GetHistories {
+export interface GetHistory {
   changedBy: any
   changedAt: Date
   updatedAt: Date
@@ -20,29 +20,29 @@ type OptionalDiffProp<T extends unknown, ReqT extends Exclude<T, undefined> = Ex
 // when property is updated => 2-tuple
 type RequiredDiffProp<T extends unknown> = T extends Document ? Diff<T> : [T, T]
 
-export type HistoryDiff<T extends Document> = {
-  _id: string
-  collectionId: string
+export type HistoryDiff<T extends Document> = Document & {
+  collectionId: Schema.Types.ObjectId
   collectionName: string
   diff: Diff<T>
-  version: number
-  createdAt: Date
-  updatedAt: Date
-  __v: number
-}
-
-export interface HistoryInterface extends Document {
-  collectionName: string
-  collectionId: Schema.Types.ObjectId
-  diff: any
   user: any
-  reason: string,
+  reason: string
   version: number
-
-  // magically appear (?)
   createdAt: Date
   updatedAt: Date
 }
+
+// export interface HistoryInterface extends Document {
+//   collectionName: string
+//   collectionId: Schema.Types.ObjectId
+//   diff: any
+//   user: any
+//   reason: string
+//   version: number
+
+//   // magically appear (?)
+//   createdAt: Date
+//   updatedAt: Date
+// }
 
 export interface PluginOptions {
   uri?: string
@@ -55,7 +55,7 @@ export interface PluginOptions {
 }
 
 export interface ModelWithHistory<T extends Document> extends Model<T> {
-  getHistory: (id: Schema.Types.ObjectId) => Promise<GetHistories[]>
+  getHistory: (id: Schema.Types.ObjectId) => Promise<GetHistory[]>
   getHistoryDiffs: (id: Schema.Types.ObjectId) => Promise<HistoryDiff<T>[]>
   getVersion: (id: Schema.Types.ObjectId) => Promise<T>
 }
@@ -63,7 +63,7 @@ export interface ModelWithHistory<T extends Document> extends Model<T> {
 export type DocumentWithHistory<Interface = unknown> = Interface & Document & {
   __user?: any
   __reason?: string
-  getHistory: (expandableFields?: string[]) => Promise<GetHistories[]>
+  getHistory: (expandableFields?: string[]) => Promise<GetHistory[]>
   getHistoryDiffs: (opts?) => Promise<HistoryDiff<Interface & Document>[]>
   getVersion: (version: number, queryOpts?) => Promise<Interface>
 }

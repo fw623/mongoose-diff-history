@@ -1,9 +1,9 @@
 import { Document, Model, Schema } from "mongoose"
 import { historyModel } from "./historyModel"
-import { GetHistories, HistoryDiff, HistoryInterface } from "./types"
-import { diffPatcher, isValidCb } from "./util"
+import { GetHistory, HistoryDiff } from "./types"
+import { diffPatcher } from "./util"
 
-export const getVersion = async<T extends Document>(model: Model<T>, id: Schema.Types.ObjectId, version: number, queryOpts?): Promise<T> => {
+export const getVersion = async <T extends Document>(model: Model<T>, id: Schema.Types.ObjectId, version: number, queryOpts?): Promise<T> => {
   const latest = await model.findById(id, null, queryOpts) ?? new model()
 
   await historyModel.find(
@@ -24,37 +24,17 @@ export const getVersion = async<T extends Document>(model: Model<T>, id: Schema.
   return latest
 }
 
-export const getHistoryDiffs = (modelName: string, id: Schema.Types.ObjectId, opts?, cb?) => {
-  opts = opts || {}
-  if (typeof opts === 'function') {
-    cb = opts
-    opts = {}
-  }
-  return historyModel.find({ collectionName: modelName, collectionId: id }, null, opts)
-    .lean()
-    .then(histories => {
-      if (isValidCb(cb)) return cb(null, histories)
-      return histories
-    })
-    .catch(err => {
-      if (isValidCb(cb)) return cb(err, null)
-      throw err
-    })
+export const getHistoryDiffs = async <T extends Document>(model: Model<T>, id: Schema.Types.ObjectId, opts?: any): Promise<HistoryDiff<T>[]> => {
+  return historyModel.find({ collectionName: model.modelName, collectionId: id }, null, opts).lean()
 }
 
-export const getHistory = (modelName: string, id: Schema.Types.ObjectId, expandableFields: any[] = [], cb?) => {
-  // handle if last param is supposed to be callback
-  if (typeof expandableFields === 'function') {
-    cb = expandableFields
-    expandableFields = []
-  }
+export const getHistory = async <T extends Document>(model: Model<T>, id: Schema.Types.ObjectId, expandableFields: any[] = []): Promise<GetHistory[]> => {
+  const histories: GetHistory[] = []
 
-  const histories: GetHistories[] = []
-
-  return historyModel.find({ collectionName: modelName, collectionId: id })
+  await historyModel.find({ collectionName: model.modelName, collectionId: id })
     .lean()
     .cursor()
-    .eachAsync((history: HistoryInterface) => {
+    .eachAsync((history: HistoryDiff<T>) => {
       const changedValues: string[] = []
       const changedFields: string[] = []
       for (const key in history.diff) {
@@ -68,6 +48,7 @@ export const getHistory = (modelName: string, id: Schema.Types.ObjectId, expanda
           }
         }
       }
+
       const comment = 'modified ' + changedFields.concat(changedValues).join(', ')
       histories.push({
         changedBy: history.user,
@@ -77,12 +58,6 @@ export const getHistory = (modelName: string, id: Schema.Types.ObjectId, expanda
         comment: comment
       })
     })
-    .then(() => {
-      if (isValidCb(cb)) return cb(null, histories)
-      return histories
-    })
-    .catch(err => {
-      if (isValidCb(cb)) return cb(err, null)
-      throw err
-    })
+
+  return histories
 }

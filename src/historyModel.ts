@@ -1,7 +1,7 @@
-import mongoose, { Schema, Model } from 'mongoose'
-import { HistoryInterface } from './types';
+import mongoose, { Schema, Model, Document } from 'mongoose'
+import { HistoryDiff } from './types';
 
-const historySchema = new Schema<HistoryInterface>(
+const historySchema = new Schema<HistoryDiff<Document>>(
   {
     collectionName: String,
     collectionId: Schema.Types.ObjectId,
@@ -15,4 +15,4 @@ const historySchema = new Schema<HistoryInterface>(
   }
 );
 
-export const historyModel: Model<HistoryInterface> = mongoose.model('_mongoose-diff-history', historySchema)
+export const historyModel: Model<HistoryDiff<Document>> = mongoose.model('_mongoose-diff-history', historySchema)

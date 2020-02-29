@@ -1,5 +1,5 @@
-import mongoose, { Schema } from 'mongoose'
-import { PluginOptions } from './types'
+import mongoose, { Schema, Document } from 'mongoose'
+import { PluginOptions, DocumentWithHistory } from './types'
 import { getHistory, getHistoryDiffs, getVersion } from './getHistory'
 import { validateRequired, saveDiffObject, saveDiffs } from './util'
 
@@ -9,7 +9,7 @@ import { validateRequired, saveDiffObject, saveDiffs } from './util'
  * @param {string} [opts.uri] - URI for MongoDB (necessary, for instance, when not using mongoose.connect).
  * @param {string|string[]} [opts.omit] - fields to omit from diffs (ex. ['a', 'b.c.d']).
  */
-export async function initPlugin (schema: Schema<any>, { modelName, ...options }: PluginOptions): Promise<void> {
+export async function initPlugin<T extends DocumentWithHistory> (schema: Schema<T>, { modelName, ...options }: PluginOptions): Promise<void> {
   // handle options
   if (options?.uri) {
     const mongoVersion = parseInt(mongoose.version, 10)
@@ -31,13 +31,13 @@ export async function initPlugin (schema: Schema<any>, { modelName, ...options }
   }
 
   // add static methods to model/schema
-  schema.statics.getHistory = (id) => getHistory(modelName, id)
-  schema.statics.getHistoryDiffs = (id) => getHistoryDiffs(modelName, id)
+  schema.statics.getHistory = (id) => getHistory(mongoose.model(modelName), id)
+  schema.statics.getHistoryDiffs = (id) => getHistoryDiffs(mongoose.model(modelName), id)
   schema.statics.getVersion = (id, version) => getVersion(mongoose.model(modelName), id, version)
 
   // add methods to documents
-  schema.methods.getHistory = function () { return getHistory(modelName, this._id) }
-  schema.methods.getHistoryDiffs = function () { return getHistoryDiffs(modelName, this._id) }
+  schema.methods.getHistory = function () { return getHistory(mongoose.model(modelName), this._id) }
+  schema.methods.getHistoryDiffs = function () { return getHistoryDiffs(mongoose.model(modelName), this._id) }
   schema.methods.getVersion = function (version) { return getVersion(mongoose.model(modelName), this._id, version) }
 
   // add middlewares

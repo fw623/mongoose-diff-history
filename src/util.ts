@@ -11,10 +11,6 @@ import { PluginOptions } from './types'
 const objectHash = (obj: any, idx: any): string => obj._id ?? obj.id ?? `$$index: ${idx}`
 export const diffPatcher = jsondiffpatch.create({ objectHash })
 
-export const isValidCb = (cb: unknown): boolean => {
-  return cb && typeof cb === 'function'
-}
-
 export function validateRequired(options: Omit<PluginOptions, 'modelName'>, queryObject: Query<unknown> | undefined, updatedObject?: Document): void {
   const { __user: user, __reason: reason } = queryObject ? queryObject.getOptions() : updatedObject
   if ((options.required ?? []).includes('user') && !user) {
