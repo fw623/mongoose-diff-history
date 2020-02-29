@@ -55,20 +55,6 @@ describe('diffHistory', () => {
     expect(await tests.getHistoryDiffs()).toHaveLength(2)
   })
 
-  it('should add history when using update', async () => {
-    const tests = new testsModel({ a: 'hi', b: { c: 'c' } })
-    tests.__user = 'user1'
-    await tests.save()
-
-    tests.a = 'ho'
-    await tests.update(tests, { __user: 'user2' })
-
-    expect(await testsModel.getHistory(tests._id)).toHaveLength(2)
-    expect(await testsModel.getHistoryDiffs(tests._id)).toHaveLength(2)
-    expect(await tests.getHistory()).toHaveLength(2)
-    expect(await tests.getHistoryDiffs()).toHaveLength(2)
-  })
-
   it('should add history when using updateOne', async () => {
     const tests = new testsModel({ a: 'hi', b: { c: 'c' } })
     tests.__user = 'user1'

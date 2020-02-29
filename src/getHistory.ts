@@ -37,16 +37,16 @@ export const getHistory = async <T extends Document>(model: Model<T>, id: Schema
     .eachAsync((historyDiff: HistoryDiff<T>) => {
       const changedValues: string[] = []
       const changedFields: string[] = []
+
       for (const key in historyDiff.diff) {
-        if (historyDiff.diff.hasOwnProperty(key)) {
-          if (expandableFields.indexOf(key) > -1) {
-            const oldValue = historyDiff.diff[key][0]
-            const newValue = historyDiff.diff[key][1]
-            changedValues.push(key + ' from ' + oldValue + ' to ' + newValue)
-          } else {
-            changedFields.push(key)
-          }
+        if (!expandableFields.includes(key) || !Array.isArray(historyDiff.diff[key])) {
+          changedFields.push(key)
+          continue
         }
+
+        const oldValue = historyDiff.diff[key].length <= 1 ? undefined : historyDiff.diff[key][0]
+        const newValue = historyDiff.diff[key].length <= 1 ? historyDiff.diff[key][0] : historyDiff.diff[key][1]
+        changedValues.push(`${key} from "${oldValue}" to "${newValue}"`)
       }
 
       const comment = 'modified ' + changedFields.concat(changedValues).join(', ')

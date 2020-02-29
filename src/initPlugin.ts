@@ -17,14 +17,14 @@ export async function initPlugin<T extends DocumentWithHistory> (schema: Schema<
       mongoose.connect(options.uri, {
         useMongoClient: true,
         useUnifiedTopology: true,
-        useFindAndModify: true,
+        useFindAndModify: false,
         ...options.connectionOptions
       })
     } else {
       mongoose.connect(options.uri, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
-        useFindAndModify: true,
+        useFindAndModify: false,
         ...options.connectionOptions
       })
     }
@@ -52,18 +52,8 @@ export async function initPlugin<T extends DocumentWithHistory> (schema: Schema<
     await saveDiffs(this, options)
   })
 
-  schema.pre('update', async function (): Promise<void> {
-    validateRequired(options, this)
-    await saveDiffs(this, options)
-  })
-
   schema.pre('updateOne', async function (): Promise<void> {
     validateRequired(options, this)
     await saveDiffs(this, options)
   })
-
-  // schema.pre('remove', async function () {
-  //   validateRequired(options, undefined, this)
-  //   await saveDiffObject(this, this, {}, options)
-  // })
 }
