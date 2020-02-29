@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
-import { DocumentWithHistory, PluginOptions } from './types'
+import { PluginOptions } from './types'
 import { getHistory, getHistoryDiffs, getVersion } from './getHistory'
 import { validateRequired, saveDiffObject, saveDiffs } from './util'
 
@@ -9,7 +9,6 @@ import { validateRequired, saveDiffObject, saveDiffs } from './util'
  * @param {string} [opts.uri] - URI for MongoDB (necessary, for instance, when not using mongoose.connect).
  * @param {string|string[]} [opts.omit] - fields to omit from diffs (ex. ['a', 'b.c.d']).
  */
-
 export async function initPlugin (schema: Schema<any>, { modelName, ...options }: PluginOptions): Promise<void> {
   // handle options
   if (options?.uri) {
@@ -43,7 +42,7 @@ export async function initPlugin (schema: Schema<any>, { modelName, ...options }
 
   // add middlewares
   schema.pre('save', async function (): Promise<void> {
-    validateRequired(options, undefined, this as DocumentWithHistory<unknown>)
+    validateRequired(options, undefined, this)
     const original = await this.model(modelName).findOne({ _id: this._id }) ?? {}
     await saveDiffObject(this, original, this.toObject({ depopulate: true }), options)
   })
@@ -63,8 +62,8 @@ export async function initPlugin (schema: Schema<any>, { modelName, ...options }
     await saveDiffs(this, options)
   })
 
-  schema.pre('remove', async function () {
-    validateRequired(options, undefined, this as DocumentWithHistory<unknown>)
-    await saveDiffObject(this, this, {}, options)
-  })
+  // schema.pre('remove', async function () {
+  //   validateRequired(options, undefined, this)
+  //   await saveDiffObject(this, this, {}, options)
+  // })
 }

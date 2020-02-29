@@ -60,7 +60,7 @@ export interface ModelWithHistory<T extends Document> extends Model<T> {
   getVersion: (id: Schema.Types.ObjectId) => Promise<T>
 }
 
-export type DocumentWithHistory<Interface> = Interface & Document & {
+export type DocumentWithHistory<Interface = unknown> = Interface & Document & {
   __user?: any
   __reason?: string
   getHistory: (expandableFields?: string[]) => Promise<GetHistories[]>
