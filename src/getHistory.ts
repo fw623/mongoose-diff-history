@@ -1,41 +1,27 @@
-import { Model, Schema } from "mongoose"
+import { Document, Model, Schema } from "mongoose"
 import { historyModel } from "./historyModel"
-import { GetHistories, HistoryInterface } from "./types"
-import { isValidCb, diffPatcher } from "./util"
+import { GetHistories, HistoryDiff, HistoryInterface } from "./types"
+import { diffPatcher, isValidCb } from "./util"
 
-export const getVersion = (model: Model<any>, id: Schema.Types.ObjectId, version: string, queryOpts?, cb?) => {
-  if (typeof queryOpts === 'function') {
-    cb = queryOpts
-    queryOpts = undefined
-  }
+export const getVersion = async<T extends Document>(model: Model<T>, id: Schema.Types.ObjectId, version: number, queryOpts?): Promise<T> => {
+  const latest = await model.findById(id, null, queryOpts) ?? new model()
 
-  return model
-    .findById(id, null, queryOpts)
-    .then(latest => {
-      latest = latest || {}
-      return historyModel.find(
-        {
-          collectionName: model.modelName,
-          collectionId: id,
-          version: { $gte: parseInt(version, 10) }
-        },
-        { diff: 1, version: 1 },
-        { sort: '-version' }
-      )
-        .lean()
-        .cursor()
-        .eachAsync(history => {
-          diffPatcher.unpatch(latest, history.diff)
-        })
-        .then(() => {
-          if (isValidCb(cb)) return cb(null, latest)
-          return latest
-        })
+  await historyModel.find(
+    {
+      collectionName: model.modelName,
+      collectionId: id,
+      version: { $gte: version }
+    },
+    { diff: 1, version: 1 },
+    { sort: '-version' }
+  )
+    .lean()
+    .cursor()
+    .eachAsync(({ diff }: HistoryDiff<T>) => {
+      diffPatcher.unpatch(latest, diff)
     })
-    .catch(err => {
-      if (isValidCb(cb)) return cb(err, null)
-      throw err
-    })
+
+  return latest
 }
 
 export const getHistoryDiffs = (modelName: string, id: Schema.Types.ObjectId, opts?, cb?) => {

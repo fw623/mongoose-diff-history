@@ -20,7 +20,7 @@ type OptionalDiffProp<T extends unknown, ReqT extends Exclude<T, undefined> = Ex
 // when property is updated => 2-tuple
 type RequiredDiffProp<T extends unknown> = T extends Document ? Diff<T> : [T, T]
 
-export type GetDiffs<T extends Document> = {
+export type HistoryDiff<T extends Document> = {
   _id: string
   collectionId: string
   collectionName: string
@@ -56,7 +56,7 @@ export interface PluginOptions {
 
 export interface ModelWithHistory<T extends Document> extends Model<T> {
   getHistory: (id: Schema.Types.ObjectId) => Promise<GetHistories[]>
-  getHistoryDiffs: (id: Schema.Types.ObjectId) => Promise<GetDiffs<T>[]>
+  getHistoryDiffs: (id: Schema.Types.ObjectId) => Promise<HistoryDiff<T>[]>
   getVersion: (id: Schema.Types.ObjectId) => Promise<T>
 }
 
@@ -64,6 +64,6 @@ export type DocumentWithHistory<Interface = unknown> = Interface & Document & {
   __user?: any
   __reason?: string
   getHistory: (expandableFields?: string[]) => Promise<GetHistories[]>
-  getHistoryDiffs: (opts?) => Promise<GetDiffs<Interface & Document>[]>
+  getHistoryDiffs: (opts?) => Promise<HistoryDiff<Interface & Document>[]>
   getVersion: (version: number, queryOpts?) => Promise<Interface>
 }
