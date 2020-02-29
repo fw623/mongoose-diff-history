@@ -1,8 +1,8 @@
-const omit = require('omit-deep');
-const pick = require('lodash.pick');
-const mongoose = require('mongoose');
-const {assign} = require("power-assign");
-const empty =  require("deep-empty-object");
+import omit from 'omit-deep';
+import pick from 'lodash.pick';
+import mongoose from 'mongoose';
+import { assign } from "power-assign";
+import empty from "deep-empty-object";
 
 // try to find an id property, otherwise just use the index in the array
 const objectHash = (obj, idx) => obj._id || obj.id || `$$index: ${idx}`;
@@ -10,7 +10,7 @@ const diffPatcher = require('jsondiffpatch').create({ objectHash });
 
 const History = require('./diffHistoryModel').model;
 
-const isValidCb = cb => {
+const isValidCb = (cb: unknown): boolean => {
     return cb && typeof cb === 'function';
 };
 
@@ -73,6 +73,7 @@ function saveDiffObject(currentObject, original, updated, opts, queryObject) {
 const saveDiffHistory = (queryObject, currentObject, opts) => {
   const update = JSON.parse(JSON.stringify(queryObject._update));
   /* eslint-disable security/detect-object-injection */
+  // @ts-ignore
   const updateParams = Object.assign(...Object.keys(update).map(function(key) {
     if(typeof update[key] === "object") {
       return update[key];

@@ -21,8 +21,8 @@
     "bluebird": "^3.5.1",
     "chai": "^3.5.0",
     "istanbul": "^0.4.5",
-    "mocha": "^2.5.3",
-    "mongoose": "^4.13.9"
+    "mocha": "^7.1.0",
+    "mongoose": "^5.9.2"
   },
   "scripts": {
     "test": "istanbul cover --report lcov  _mocha tests --recursive"
