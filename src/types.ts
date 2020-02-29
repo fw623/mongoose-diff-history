@@ -46,7 +46,7 @@ export interface HistoryInterface extends Document {
 
 export interface PluginOptions {
   uri?: string
-  omit?: string | string[]
+  omit?: string[]
   pick?: string[]
   required?: string[]
   // new

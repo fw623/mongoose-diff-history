@@ -32,8 +32,8 @@
     "typescript": "^3.8.3"
   },
   "scripts": {
-    "test": "istanbul cover --report lcov  _mocha tests --recursive",
-    "test:jest": "jest --passWithNoTests --runInBand"
+    "test": "jest --passWithNoTests --runInBand --forceExit",
+    "test:mocha": "istanbul cover --report lcov  _mocha tests --recursive"
   },
   "contributors": [
     {

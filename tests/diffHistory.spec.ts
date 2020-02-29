@@ -55,6 +55,42 @@ describe('diffHistory', () => {
     expect(await tests.getHistoryDiffs()).toHaveLength(1)
   })
 
+  it('should add history when using update', async () => {
+    const tests = new testsModel({ a: 'hi', b: { c: 'c' } })
+    tests.__user = 'user1'
+    await tests.save()
+
+    tests.a = 'ho'
+    await tests.update(tests, { __user: 'user2' })
+
+    expect(await testsModel.getHistory(tests._id)).toHaveLength(1)
+    expect(await testsModel.getHistoryDiffs(tests._id)).toHaveLength(1)
+    expect(await tests.getHistory()).toHaveLength(1)
+    expect(await tests.getHistoryDiffs()).toHaveLength(1)
+  })
+
+  it('should add history when using updateOne', async () => {
+    const tests = new testsModel({ a: 'hi', b: { c: 'c' } })
+    tests.__user = 'user1'
+    await tests.save()
+
+    tests.a = 'ho'
+    await tests.updateOne(tests, { __user: 'user2' })
+
+    expect(await testsModel.getHistory(tests._id)).toHaveLength(1)
+    expect(await testsModel.getHistoryDiffs(tests._id)).toHaveLength(1)
+    expect(await tests.getHistory()).toHaveLength(1)
+    expect(await tests.getHistoryDiffs()).toHaveLength(1)
+  })
+
+  it('should fail when __user is not set but required', async () => {
+    const tests = new testsModel({ a: 'hi', b: { c: 'c' } })
+    await tests.save()
+
+    delete tests.__user
+    expect(tests.save()).rejects.toThrowError()
+  })
+
   /* it('should do something', async () => {
     const tests = new testsModel({ a: 'hi', b: { c: 'c' } })
     // const tests = new testsModel({ a: 'hi' })
