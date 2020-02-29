@@ -8,7 +8,7 @@ describe('diffHistory', () => {
   let schema2Model: ModelWithHistory<any>
 
   beforeAll(async () => {
-    await mongoose.connect('mongodb://localhost:27017/db')
+    // await mongoose.connect('mongodb://localhost:27017/db')
     testsModel = mongoose.model('Tests', testsSchema) as any
     schema2Model = mongoose.model('Schema2', schema2) as any
 
@@ -27,11 +27,35 @@ describe('diffHistory', () => {
     await mongoose.disconnect()
   })
 
-  it('should do something', async () => {
-    // console.log(mongoose.models)
+  it('should add history when using findOneAndUpdate', async () => {
+    const tests = new testsModel({ a: 'hi', b: { c: 'c' } })
+    tests.__user = 'user1'
+    await tests.save()
+
+    const a = await testsModel.findOneAndUpdate({ a: 'hi' }, { a: 'ho' }, { __user: 'user2' } as any)
+
+    expect(await testsModel.getHistories(tests._id)).toHaveLength(1)
+    expect(await testsModel.getDiffs(tests._id)).toHaveLength(1)
+    expect(await tests.getHistories()).toHaveLength(1)
+    expect(await tests.getDiffs()).toHaveLength(1)
   })
 
-  it('should do something', async () => {
+  it('should add history when using save', async () => {
+    const tests = new testsModel({ a: 'hi', b: { c: 'c' } })
+    tests.__user = 'user1'
+    await tests.save()
+
+    tests.a = 'ho'
+    tests.__user = 'user2'
+    await tests.save()
+
+    expect(await testsModel.getHistories(tests._id)).toHaveLength(1)
+    expect(await testsModel.getDiffs(tests._id)).toHaveLength(1)
+    expect(await tests.getHistories()).toHaveLength(1)
+    expect(await tests.getDiffs()).toHaveLength(1)
+  })
+
+  /* it('should do something', async () => {
     const tests = new testsModel({ a: 'hi', b: { c: 'c' } })
     // const tests = new testsModel({ a: 'hi' })
     await tests.save()
@@ -39,13 +63,14 @@ describe('diffHistory', () => {
     tests.a = 'ho'
     tests.arr = ['one', 'two', 'three']
     tests.docArray = [{ c: 'one' }, { c: 'two' }, { c: 'three' }] as any
+    tests.__user = 'asdf'
     await tests.save()
     console.log('CL: tests', tests)
 
     tests.b = { c: 'd' } as any
     tests.arr = [tests.arr[2], tests.arr[1], 'new']
     // tests.docArray = [tests.docArray[2], tests.docArray[1], { c: 'new' }] as any
-    tests.__user = 'asdf'
+    tests.__user = 'bcde'
     await tests.save()
 
     console.log('CL: tests', tests)
@@ -56,13 +81,15 @@ describe('diffHistory', () => {
     // const res = await testsModel.getDiffs('Tests', tests._id)
     const resStatic = await testsModel.getDiffs(tests._id)
     console.log('CL: resStatic', resStatic)
+    // console.log('CL: resStatic', resStatic)
 
-    const resInstance = await tests.getDiffs()
+    const resInstance = await tests.getHistories()
     console.log('CL: resInstance', resInstance)
+    // console.log('CL: resInstance', resInstance)
 
 
     const resInstanceVers = await tests.getVersion(1)
-    console.log('CL: resInstanceVers', resInstanceVers)
+    // console.log('CL: resInstanceVers', resInstanceVers)
     // const res = await testsModel.getDiffs()
     // console.log('CL: res[1].diff.docArray', res[1].diff.docArray)
     // console.log('CL: res[1].diff', res[1].diff.arr?._0[2])
@@ -82,6 +109,6 @@ describe('diffHistory', () => {
 
     // const historyModel = mongoose.model('History')
     // console.log('Histories', await historyModel.find())
-  })
+  }) */
 
 })

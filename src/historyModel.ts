@@ -15,4 +15,4 @@ const historySchema = new Schema<HistoryInterface>(
   }
 );
 
-export const historyModel: Model<HistoryInterface> = mongoose.model('History', historySchema)
+export const historyModel: Model<HistoryInterface> = mongoose.model('_mongoose-diff-history', historySchema)

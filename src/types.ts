@@ -54,11 +54,6 @@ export interface PluginOptions {
   modelName: string
 }
 
-export interface SchemaWithHistory<T extends Document> extends Schema<T> {
-  __user?: any
-  __reason?: any
-}
-
 export interface ModelWithHistory<T extends Document> extends Model<T> {
   getHistories: (id: Schema.Types.ObjectId) => Promise<GetHistories[]>
   getDiffs: (id: Schema.Types.ObjectId) => Promise<GetDiffs<T>[]>
@@ -67,7 +62,7 @@ export interface ModelWithHistory<T extends Document> extends Model<T> {
 
 export type DocumentWithHistory<Interface> = Interface & Document & {
   __user?: any
-  __reason?: any
+  __reason?: string
   getHistories: (expandableFields?: string[]) => Promise<GetHistories[]>
   getDiffs: (opts?) => Promise<GetDiffs<Interface & Document>[]>
   getVersion: (version: number, queryOpts?) => Promise<Interface>
