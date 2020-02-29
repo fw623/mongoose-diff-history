@@ -13,10 +13,10 @@ export const diffPatcher = jsondiffpatch.create({ objectHash })
 
 export function validateRequired(options: Omit<PluginOptions, 'modelName'>, queryObject: Query<unknown> | undefined, updatedObject?: Document): void {
   const { __user: user, __reason: reason } = queryObject ? queryObject.getOptions() : updatedObject
-  if ((options.required ?? []).includes('user') && !user) {
+  if (options.required?.user && !user) {
     throw new Error(`user is required when making change to document but not defined`)
   }
-  if ((options.required ?? []).includes('reason') && !reason) {
+  if (options.required?.reason && !reason) {
     throw new Error(`reason is required when making change to document but not defined`)
   }
 }

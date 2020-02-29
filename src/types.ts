@@ -45,7 +45,7 @@ export interface PluginOptions {
   uri?: string
   omit?: string[]
   pick?: string[]
-  required?: string[]
+  required?: { user?: boolean, reason?: boolean }
   // new
   connectionOptions?: ConnectionOptions
   modelName: string

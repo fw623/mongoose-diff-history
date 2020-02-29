@@ -7,7 +7,11 @@ import { saveDiffObject, saveDiffs, validateRequired } from './util'
  * @param {Object} schema - Schema object passed by Mongoose Schema.plugin
  * @param {Object} [opts] - Options passed by Mongoose Schema.plugin
  * @param {string} [opts.uri] - URI for MongoDB (necessary, for instance, when not using mongoose.connect).
- * @param {string[]} [opts.omit] - fields to omit from diffs (ex. ['a', 'b.c.d']).
+ * @param {string} [opts.modelName] - Name of the Model.
+ * @param {string[]} [opts.omit] - Fields to omit from diffs (ex. ['a', 'b.c.d']).
+ * @param {string[]} [opts.pick] - Fields to pick for diffs (ex. ['a', 'b.c.d']).
+ * @param {string[]} [opts.required] - Require to always pass __user or __reason (else throw Error) (ex. { user: true, reason: true }).
+ * @param {string[]} [opts.connectionOptions] - Overwrite default connection options.
  */
 export async function initPlugin<T extends DocumentWithHistory> (schema: Schema<T>, { modelName, ...options }: PluginOptions): Promise<void> {
   // handle options

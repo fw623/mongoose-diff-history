@@ -14,7 +14,7 @@ export const testsSchema = new Schema<testsSchemaInterface>({
 })
 
 
-testsSchema.plugin(initPlugin, { modelName: 'Tests', uri: 'mongodb://localhost:27017/db', required: ['user'] })
+testsSchema.plugin(initPlugin, { modelName: 'Tests', uri: 'mongodb://localhost:27017/db', required: { user: true } })
 
 export type testsSchemaInterface = DocumentWithHistory<{
   a: string
