@@ -15,25 +15,7 @@ export const isValidCb = (cb: unknown): boolean => {
   return cb && typeof cb === 'function'
 }
 
-export function checkRequired(opts, queryObject, updatedObject?) {
-  if ((queryObject && !queryObject.options) && !updatedObject) {
-    return
-  }
-  const { __user: user, __reason: reason } = queryObject && queryObject.options || updatedObject
-  if (opts.required && (opts.required.includes("user") && !user ||
-    opts.required.includes("reason") && !reason)
-  ) {
-    return true
-  }
-}
-
-export function checkRequired2(options: Omit<PluginOptions, 'modelName'>, queryObject: Query<unknown> | undefined, updatedObject?: DocumentWithHistory<unknown>): boolean {
-  console.log('CL: checkRequired -> opts', options)
-  console.log('CL: checkRequired -> queryObject', queryObject)
-  console.log('CL: checkRequired -> updatedObject', updatedObject)
-
-  if (!(queryObject && 'getOptions' in queryObject) && !updatedObject) return true
-
+export function validateRequired(options: Omit<PluginOptions, 'modelName'>, queryObject: Query<unknown> | undefined, updatedObject?: DocumentWithHistory<unknown>): void {
   const { __user: user, __reason: reason } = queryObject ? queryObject.getOptions() : updatedObject
   if ((options.required ?? []).includes('user') && !user) {
     throw new Error(`user is required when making change to document but not defined`)
@@ -41,8 +23,6 @@ export function checkRequired2(options: Omit<PluginOptions, 'modelName'>, queryO
   if ((options.required ?? []).includes('reason') && !reason) {
     throw new Error(`reason is required when making change to document but not defined`)
   }
-
-  return true
 }
 
 export async function saveDiffObject(currentObject, original, updated, opts, queryObject?) {

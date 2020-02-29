@@ -83,12 +83,27 @@ describe('diffHistory', () => {
     expect(await tests.getHistoryDiffs()).toHaveLength(2)
   })
 
-  it('should fail when __user is not set but required', async () => {
+  it('should fail when __user is not set (on inserting 1st time) but required', async () => {
     const tests = new testsModel({ a: 'hi', b: { c: 'c' } })
+    await expect(tests.save()).rejects.toThrowError()
+  })
+
+  it('should fail when __user is not set (on saving 2nd time) but required', async () => {
+    const tests = new testsModel({ a: 'hi', b: { c: 'c' } })
+    tests.__user = 'user1'
     await tests.save()
 
+    tests.a = 'ho'
     delete tests.__user
-    expect(tests.save()).rejects.toThrowError()
+    await expect(tests.save()).rejects.toThrowError()
+  })
+
+  it('should fail when __user is not set (on findOneAndUpdate) but required', async () => {
+    const tests = new testsModel({ a: 'hi', b: { c: 'c' } })
+    tests.__user = 'user1'
+    await tests.save()
+
+    await expect(testsModel.findOneAndUpdate({ a: 'hi' }, { a: 'ho' })).rejects.toThrowError()
   })
 
   /* it('should do something', async () => {

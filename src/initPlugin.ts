@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose'
 import { DocumentWithHistory, PluginOptions } from './types'
 import { getHistory, getHistoryDiffs, getVersion } from './getHistory'
-import { checkRequired, saveDiffObject, saveDiffs } from './util'
+import { validateRequired, saveDiffObject, saveDiffs } from './util'
 
 /**
  * @param {Object} schema - Schema object passed by Mongoose Schema.plugin
@@ -43,29 +43,28 @@ export async function initPlugin (schema: Schema<any>, { modelName, ...options }
 
   // add middlewares
   schema.pre('save', async function (): Promise<void> {
+    validateRequired(options, undefined, this as DocumentWithHistory<unknown>)
     const original = await this.model(modelName).findOne({ _id: this._id }) ?? {}
-
-    if (checkRequired(options, undefined, this as DocumentWithHistory<unknown>)) return
     await saveDiffObject(this, original, this.toObject({ depopulate: true }), options)
   })
 
   schema.pre('findOneAndUpdate', async function (): Promise<void> {
-    if (checkRequired(options, this)) return
+    validateRequired(options, this)
     await saveDiffs(this, options)
   })
 
   schema.pre('update', async function (): Promise<void> {
-    if (checkRequired(options, this)) return
+    validateRequired(options, this)
     await saveDiffs(this, options)
   })
 
   schema.pre('updateOne', async function (): Promise<void> {
-    if (checkRequired(options, this)) return
+    validateRequired(options, this)
     await saveDiffs(this, options)
   })
 
   schema.pre('remove', async function () {
-    if (checkRequired(options, undefined, this as DocumentWithHistory<unknown>)) return
+    validateRequired(options, undefined, this as DocumentWithHistory<unknown>)
     await saveDiffObject(this, this, {}, options)
   })
 }
