@@ -27,22 +27,11 @@ export type HistoryDiff<T extends Document> = Document & {
   user: any
   reason: string
   version: number
+
+  // v magically appear (?)
   createdAt: Date
   updatedAt: Date
 }
-
-// export interface HistoryInterface extends Document {
-//   collectionName: string
-//   collectionId: Schema.Types.ObjectId
-//   diff: any
-//   user: any
-//   reason: string
-//   version: number
-
-//   // magically appear (?)
-//   createdAt: Date
-//   updatedAt: Date
-// }
 
 export interface PluginOptions {
   uri?: string
@@ -55,15 +44,15 @@ export interface PluginOptions {
 }
 
 export interface ModelWithHistory<T extends Document> extends Model<T> {
-  getHistory: (id: Schema.Types.ObjectId) => Promise<GetHistory[]>
+  getHistory: (id: Schema.Types.ObjectId, expandableFields?: string[]) => Promise<GetHistory[]>
   getHistoryDiffs: (id: Schema.Types.ObjectId) => Promise<HistoryDiff<T>[]>
-  getVersion: (id: Schema.Types.ObjectId) => Promise<T>
+  getVersion: (id: Schema.Types.ObjectId, version: number) => Promise<T>
 }
 
 export type DocumentWithHistory<Interface = unknown> = Interface & Document & {
   __user?: any
   __reason?: string
   getHistory: (expandableFields?: string[]) => Promise<GetHistory[]>
-  getHistoryDiffs: (opts?) => Promise<HistoryDiff<Interface & Document>[]>
-  getVersion: (version: number, queryOpts?) => Promise<Interface>
+  getHistoryDiffs: () => Promise<HistoryDiff<Interface & Document>[]>
+  getVersion: (version: number) => Promise<Interface>
 }

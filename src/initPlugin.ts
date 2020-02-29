@@ -1,13 +1,13 @@
-import mongoose, { Schema, Document } from 'mongoose'
-import { PluginOptions, DocumentWithHistory } from './types'
+import mongoose, { Schema } from 'mongoose'
 import { getHistory, getHistoryDiffs, getVersion } from './getHistory'
-import { validateRequired, saveDiffObject, saveDiffs } from './util'
+import { DocumentWithHistory, PluginOptions, ModelWithHistory } from './types'
+import { saveDiffObject, saveDiffs, validateRequired } from './util'
 
 /**
  * @param {Object} schema - Schema object passed by Mongoose Schema.plugin
  * @param {Object} [opts] - Options passed by Mongoose Schema.plugin
  * @param {string} [opts.uri] - URI for MongoDB (necessary, for instance, when not using mongoose.connect).
- * @param {string|string[]} [opts.omit] - fields to omit from diffs (ex. ['a', 'b.c.d']).
+ * @param {string[]} [opts.omit] - fields to omit from diffs (ex. ['a', 'b.c.d']).
  */
 export async function initPlugin<T extends DocumentWithHistory> (schema: Schema<T>, { modelName, ...options }: PluginOptions): Promise<void> {
   // handle options
@@ -31,12 +31,12 @@ export async function initPlugin<T extends DocumentWithHistory> (schema: Schema<
   }
 
   // add static methods to model/schema
-  schema.statics.getHistory = (id) => getHistory(mongoose.model(modelName), id)
-  schema.statics.getHistoryDiffs = (id) => getHistoryDiffs(mongoose.model(modelName), id)
-  schema.statics.getVersion = (id, version) => getVersion(mongoose.model(modelName), id, version)
+  (schema.statics.getHistory as ModelWithHistory<any>['getHistory']) = (id, expandableFields) => getHistory(mongoose.model(modelName), id, expandableFields);
+  (schema.statics.getHistoryDiffs as ModelWithHistory<any>['getHistoryDiffs']) = (id) => getHistoryDiffs(mongoose.model(modelName), id);
+  (schema.statics.getVersion as ModelWithHistory<any>['getVersion']) = (id, version) => getVersion(mongoose.model(modelName), id, version);
 
   // add methods to documents
-  schema.methods.getHistory = function () { return getHistory(mongoose.model(modelName), this._id) }
+  schema.methods.getHistory = function (expandableFields) { return getHistory(mongoose.model(modelName), this._id, expandableFields) }
   schema.methods.getHistoryDiffs = function () { return getHistoryDiffs(mongoose.model(modelName), this._id) }
   schema.methods.getVersion = function (version) { return getVersion(mongoose.model(modelName), this._id, version) }
 

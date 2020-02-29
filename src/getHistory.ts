@@ -3,8 +3,8 @@ import { historyModel } from "./historyModel"
 import { GetHistory, HistoryDiff } from "./types"
 import { diffPatcher } from "./util"
 
-export const getVersion = async <T extends Document>(model: Model<T>, id: Schema.Types.ObjectId, version: number, queryOpts?): Promise<T> => {
-  const latest = await model.findById(id, null, queryOpts) ?? new model()
+export const getVersion = async <T extends Document>(model: Model<T>, id: Schema.Types.ObjectId, version: number): Promise<T> => {
+  const latest = await model.findById(id) ?? new model()
 
   await historyModel.find(
     {
@@ -24,11 +24,11 @@ export const getVersion = async <T extends Document>(model: Model<T>, id: Schema
   return latest
 }
 
-export const getHistoryDiffs = async <T extends Document>(model: Model<T>, id: Schema.Types.ObjectId, opts?: any): Promise<HistoryDiff<T>[]> => {
-  return historyModel.find({ collectionName: model.modelName, collectionId: id }, null, opts).lean()
+export const getHistoryDiffs = async <T extends Document>(model: Model<T>, id: Schema.Types.ObjectId): Promise<HistoryDiff<T>[]> => {
+  return historyModel.find({ collectionName: model.modelName, collectionId: id }).lean()
 }
 
-export const getHistory = async <T extends Document>(model: Model<T>, id: Schema.Types.ObjectId, expandableFields: any[] = []): Promise<GetHistory[]> => {
+export const getHistory = async <T extends Document>(model: Model<T>, id: Schema.Types.ObjectId, expandableFields: string[] = []): Promise<GetHistory[]> => {
   const history: GetHistory[] = []
 
   await historyModel.find({ collectionName: model.modelName, collectionId: id })
