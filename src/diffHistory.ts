@@ -1,6 +1,6 @@
 import omit from 'omit-deep'
 import pick from 'lodash.pick'
-import mongoose, { Schema, Query } from 'mongoose'
+import mongoose, { Schema, Query, Model, Document } from 'mongoose'
 import { assign } from "power-assign"
 import empty from "deep-empty-object"
 import jsondiffpatch from 'jsondiffpatch'
@@ -92,7 +92,7 @@ const saveDiffs = (queryObject, opts) =>
     .cursor()
     .eachAsync(result => saveDiffHistory(queryObject, result, opts))
 
-export const getVersion = (model, id, version, queryOpts?, cb?) => {
+const getVersion = (model: Model<any>, id: Schema.Types.ObjectId, version: string, queryOpts?, cb?) => {
   if (typeof queryOpts === 'function') {
     cb = queryOpts
     queryOpts = undefined
@@ -127,7 +127,7 @@ export const getVersion = (model, id, version, queryOpts?, cb?) => {
     })
 }
 
-export const getDiffs = (modelName, id, opts?, cb?) => {
+const getDiffs = (modelName: string, id: Schema.Types.ObjectId, opts?, cb?) => {
   opts = opts || {}
   if (typeof opts === 'function') {
     cb = opts
@@ -145,8 +145,8 @@ export const getDiffs = (modelName, id, opts?, cb?) => {
     })
 }
 
-export const getHistories = (modelName, id, expandableFields?, cb?) => {
-  expandableFields = expandableFields || []
+const getHistories = (modelName: string, id: Schema.Types.ObjectId, expandableFields?, cb?) => {
+  // handle if last param is supposed to be callback
   if (typeof expandableFields === 'function') {
     cb = expandableFields
     expandableFields = []
@@ -196,7 +196,7 @@ export const getHistories = (modelName, id, expandableFields?, cb?) => {
  * @param {string} [opts.uri] - URI for MongoDB (necessary, for instance, when not using mongoose.connect).
  * @param {string|string[]} [opts.omit] - fields to omit from diffs (ex. ['a', 'b.c.d']).
  */
-export const plugin = function lastModifiedPlugin(schema: Schema<unknown>, options: PluginOptions = {}) {
+export const plugin = function lastModifiedPlugin(schema: Schema<any>, { modelName, ...options }: PluginOptions) {
   if (options?.uri) {
     const mongoVersion = parseInt(mongoose.version)
     if (mongoVersion < 5) {
@@ -210,9 +210,6 @@ export const plugin = function lastModifiedPlugin(schema: Schema<unknown>, optio
     }
   }
 
-  schema.static('getHistories', getHistories)
-  schema.static('getDiffs', getDiffs)
-
   if (options.omit && !Array.isArray(options.omit)) {
     if (typeof options.omit === 'string') {
       options.omit = [options.omit]
@@ -221,6 +218,16 @@ export const plugin = function lastModifiedPlugin(schema: Schema<unknown>, optio
       throw new TypeError(errMsg)
     }
   }
+
+  // add static methods to model/schema
+  schema.statics.getHistories = (id) => getHistories(modelName, id)
+  schema.statics.getDiffs = (id) => getDiffs(modelName, id)
+  schema.statics.getVersion = (id, version) => getVersion(mongoose.model(modelName), id, version)
+
+  // add methods to documents
+  schema.methods.getHistories = function () { return getHistories(modelName, this._id) }
+  schema.methods.getDiffs = function () { return getDiffs(modelName, this._id) }
+  schema.methods.getVersion = function (version) { return getVersion(mongoose.model(modelName), this._id, version) }
 
   schema.pre('save', function (next) {
     if (this.isNew) {

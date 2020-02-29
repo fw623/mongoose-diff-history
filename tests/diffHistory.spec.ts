@@ -1,43 +1,34 @@
 import mongoose, { Document } from 'mongoose'
-import { testsSchema, testsSchemaInterface } from './testsSchema'
-import { getHistories, getDiffs } from '../src/diffHistory'
+import { testsSchema, testsSchemaInterface, schema2 } from './testsSchema'
 import { ModelWithHistory } from '../src/types'
 
 describe('diffHistory', () => {
   // let testsModel: mongoose.Model<{ a: string } & Document>
   let testsModel: ModelWithHistory<testsSchemaInterface>
+  let schema2Model: ModelWithHistory<any>
 
   beforeAll(async () => {
     await mongoose.connect('mongodb://localhost:27017/db')
     testsModel = mongoose.model('Tests', testsSchema) as any
+    schema2Model = mongoose.model('Schema2', schema2) as any
 
     await testsModel.syncIndexes()
+    await schema2Model.syncIndexes()
   })
 
   beforeEach(async () => {
     await testsModel.remove({})
+    await schema2Model.remove({})
   })
 
   afterAll(async () => {
     await testsModel.remove({})
+    await schema2Model.remove({})
     await mongoose.disconnect()
   })
 
   it('should do something', async () => {
     // console.log(mongoose.models)
-  })
-
-  it('should do something', async () => {
-    const tests = new testsModel({ a: 'hi', b: { c: 'c' } })
-    await tests.save()
-
-    tests.a = 'ho'
-    await tests.save()
-
-    // const res = await getHistories('Tests', tests._id)
-    const res = await getDiffs('Tests', tests._id)
-    console.log('CL: res', res[0].diff)
-    expect(res).toHaveLength(1)
   })
 
   it('should do something', async () => {
@@ -54,17 +45,43 @@ describe('diffHistory', () => {
     tests.b = { c: 'd' } as any
     tests.arr = [tests.arr[2], tests.arr[1], 'new']
     // tests.docArray = [tests.docArray[2], tests.docArray[1], { c: 'new' }] as any
+    tests.__user = 'asdf'
     await tests.save()
 
     console.log('CL: tests', tests)
+    // tests.getDiffs()
 
     // const res = await getHistories('Tests', tests._id)
     // const res = await testsModel.getHistories('Tests', tests._id)
-    const res = await testsModel.getDiffs('Tests', tests._id)
+    // const res = await testsModel.getDiffs('Tests', tests._id)
+    const resStatic = await testsModel.getDiffs(tests._id)
+    console.log('CL: resStatic', resStatic)
+
+    const resInstance = await tests.getDiffs()
+    console.log('CL: resInstance', resInstance)
+
+
+    const resInstanceVers = await tests.getVersion(1)
+    console.log('CL: resInstanceVers', resInstanceVers)
+    // const res = await testsModel.getDiffs()
     // console.log('CL: res[1].diff.docArray', res[1].diff.docArray)
-    console.log('CL: res[1].diff', res[1].diff.arr?._0[2])
+    // console.log('CL: res[1].diff', res[1].diff.arr?._0[2])
     // console.log('CL: res', res[1].diff.arr ? res[1].diff.docArray : 'nope')
     // expect(res).toHaveLength(1)
+
+
+
+    // const schema2 = new schema2Model({ a: 'a' })
+    // await schema2.save()
+    // schema2.a = 'b'
+    // await schema2.save()
+
+    // const resSchema2 = await tests.getDiffs('Schema2', schema2._id)
+    // console.log('CL: resSchema2', resSchema2)
+
+
+    // const historyModel = mongoose.model('History')
+    // console.log('Histories', await historyModel.find())
   })
 
 })

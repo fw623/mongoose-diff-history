@@ -51,16 +51,24 @@ export interface PluginOptions {
   required?: string[]
   // new
   connectionOptions?: ConnectionOptions
+  modelName: string
 }
 
-// export interface SchemaWithHistory<T extends Document> extends Schema<T> {
-//   __user?: any
-//   __reason?: any
-// }
-
-export interface ModelWithHistory<T extends Document> extends Model<T> {
+export interface SchemaWithHistory<T extends Document> extends Schema<T> {
   __user?: any
   __reason?: any
-  getHistories: (...args: any[]) => Promise<GetHistories[]>
-  getDiffs: (...args: any[]) => Promise<GetDiffs<T>[]>
+}
+
+export interface ModelWithHistory<T extends Document> extends Model<T> {
+  getHistories: (id: Schema.Types.ObjectId) => Promise<GetHistories[]>
+  getDiffs: (id: Schema.Types.ObjectId) => Promise<GetDiffs<T>[]>
+  getVersion: (id: Schema.Types.ObjectId) => Promise<T>
+}
+
+export type DocumentWithHistory<Interface> = Interface & Document & {
+  __user?: any
+  __reason?: any
+  getHistories: (expandableFields?: string[]) => Promise<GetHistories[]>
+  getDiffs: (opts?) => Promise<GetDiffs<Interface & Document>[]>
+  getVersion: (version: number, queryOpts?) => Promise<Interface>
 }
