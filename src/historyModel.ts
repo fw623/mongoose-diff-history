@@ -1,17 +1,18 @@
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema, Model } from 'mongoose'
+import { HistoryInterface } from './types';
 
-const historySchema = new Schema(
-    {
-        collectionName: String,
-        collectionId: Schema.Types.ObjectId,
-        diff: {},
-        user: {},
-        reason: String,
-        version: { type: Number, min: 0 }
-    },
-    {
-        timestamps: true
-    }
+const historySchema = new Schema<HistoryInterface>(
+  {
+    collectionName: String,
+    collectionId: Schema.Types.ObjectId,
+    diff: {},
+    user: {},
+    reason: String,
+    version: { type: Number, min: 0 }
+  },
+  {
+    timestamps: true
+  }
 );
 
-export const historyModel = mongoose.model('History', historySchema)
+export const historyModel: Model<HistoryInterface> = mongoose.model('History', historySchema)
