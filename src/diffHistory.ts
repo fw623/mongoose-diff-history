@@ -92,7 +92,7 @@ const saveDiffs = (queryObject, opts) =>
     .cursor()
     .eachAsync(result => saveDiffHistory(queryObject, result, opts))
 
-const getVersion = (model, id, version, queryOpts, cb) => {
+export const getVersion = (model, id, version, queryOpts?, cb?) => {
   if (typeof queryOpts === 'function') {
     cb = queryOpts
     queryOpts = undefined
@@ -127,7 +127,7 @@ const getVersion = (model, id, version, queryOpts, cb) => {
     })
 }
 
-const getDiffs = (modelName, id, opts, cb) => {
+export const getDiffs = (modelName, id, opts?, cb?) => {
   opts = opts || {}
   if (typeof opts === 'function') {
     cb = opts
@@ -145,7 +145,7 @@ const getDiffs = (modelName, id, opts, cb) => {
     })
 }
 
-const getHistories = (modelName, id, expandableFields, cb) => {
+export const getHistories = (modelName, id, expandableFields?, cb?) => {
   expandableFields = expandableFields || []
   if (typeof expandableFields === 'function') {
     cb = expandableFields
@@ -196,7 +196,7 @@ const getHistories = (modelName, id, expandableFields, cb) => {
  * @param {string} [opts.uri] - URI for MongoDB (necessary, for instance, when not using mongoose.connect).
  * @param {string|string[]} [opts.omit] - fields to omit from diffs (ex. ['a', 'b.c.d']).
  */
-const plugin = function lastModifiedPlugin(schema: Schema<unknown>, options: PluginOptions = {}) {
+export const plugin = function lastModifiedPlugin(schema: Schema<unknown>, options: PluginOptions = {}) {
   if (options?.uri) {
     const mongoVersion = parseInt(mongoose.version)
     if (mongoVersion < 5) {
@@ -209,6 +209,9 @@ const plugin = function lastModifiedPlugin(schema: Schema<unknown>, options: Plu
       })
     }
   }
+
+  schema.static('getHistories', getHistories)
+  schema.static('getDiffs', getDiffs)
 
   if (options.omit && !Array.isArray(options.omit)) {
     if (typeof options.omit === 'string') {
@@ -262,11 +265,4 @@ const plugin = function lastModifiedPlugin(schema: Schema<unknown>, options: Plu
       .then(() => next())
       .catch(next)
   })
-}
-
-module.exports = {
-  plugin,
-  getVersion,
-  getDiffs,
-  getHistories
 }

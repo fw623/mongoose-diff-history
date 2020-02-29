@@ -18,16 +18,22 @@
     "power-assign": "^0.2.10"
   },
   "devDependencies": {
+    "@types/jest": "^25.1.3",
     "@types/lodash.pick": "^4.4.6",
     "@types/mongoose": "^5.7.3",
     "bluebird": "^3.5.1",
     "chai": "^3.5.0",
     "istanbul": "^0.4.5",
+    "jest": "^25.1.0",
+    "jest-extended": "^0.11.5",
     "mocha": "^7.1.0",
-    "mongoose": "^5.9.2"
+    "mongoose": "^5.9.2",
+    "ts-jest": "^25.2.1",
+    "typescript": "^3.8.3"
   },
   "scripts": {
-    "test": "istanbul cover --report lcov  _mocha tests --recursive"
+    "test": "istanbul cover --report lcov  _mocha tests --recursive",
+    "test:jest": "jest --passWithNoTests --runInBand"
   },
   "contributors": [
     {
@@ -57,5 +63,22 @@
   "bugs": {
     "url": "https://github.com/mimani/mongoose-diff-history/issues"
   },
-  "license": "GPL-2.0"
+  "license": "GPL-2.0",
+  "jest": {
+    "setupFilesAfterEnv": [
+      "jest-extended"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "tests",
+    "testRegex": "\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
+  }
 }
