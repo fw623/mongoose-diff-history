@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose'
 import { DocumentWithHistory, PluginOptions } from './types'
-import { getHistories, getDiffs, getVersion } from './getHistory'
+import { getHistory, getHistoryDiffs, getVersion } from './getHistory'
 import { checkRequired, saveDiffObject, saveDiffs } from './util'
 
 /**
@@ -33,40 +33,40 @@ export const initPlugin = function lastModifiedPlugin(schema: Schema<any>, { mod
   }
 
   // add static methods to model/schema
-  schema.statics.getHistories = (id) => getHistories(modelName, id)
-  schema.statics.getDiffs = (id) => getDiffs(modelName, id)
+  schema.statics.getHistory = (id) => getHistory(modelName, id)
+  schema.statics.getHistoryDiffs = (id) => getHistoryDiffs(modelName, id)
   schema.statics.getVersion = (id, version) => getVersion(mongoose.model(modelName), id, version)
 
   // add methods to documents
-  schema.methods.getHistories = function () { return getHistories(modelName, this._id) }
-  schema.methods.getDiffs = function () { return getDiffs(modelName, this._id) }
+  schema.methods.getHistory = function () { return getHistory(modelName, this._id) }
+  schema.methods.getHistoryDiffs = function () { return getHistoryDiffs(modelName, this._id) }
   schema.methods.getVersion = function (version) { return getVersion(mongoose.model(modelName), this._id, version) }
 
   // add middlewares
-  schema.pre('save', function (next) {
-    if (this.isNew) {
-      return next()
-    }
+  // schema.pre('save', function (next) {
+  //   if (this.isNew) {
+  //     return next()
+  //   }
 
-    (this.constructor as any)
-      .findOne({ _id: this._id })
-      .then((original) => {
-        if (checkRequired(options, {}, this)) { return }
-        return saveDiffObject(this, original, this.toObject({ depopulate: true }), options)
-      })
-      .then(() => next())
-      .catch(next)
-  })
-
-  // schema.pre('save', async function (): Promise<void> {
-  //   console.log('CL: schema.methods.getVersion -> this', this)
-  //   if (this.isNew) return
-
-  //   const original = await (this.constructor as any).findOne({ _id: this._id })
-
-  //   if (checkRequired(options, undefined, this as DocumentWithHistory<unknown>)) return
-  //   await saveDiffObject(this, original, this.toObject({ depopulate: true }), options)
+  //   (this.constructor as any)
+  //     .findOne({ _id: this._id })
+  //     .then((original) => {
+  //       if (checkRequired(options, {}, this)) { return }
+  //       return saveDiffObject(this, original, this.toObject({ depopulate: true }), options)
+  //     })
+  //     .then(() => next())
+  //     .catch(next)
   // })
+
+  schema.pre('save', async function (): Promise<void> {
+    console.log('CL: schema.methods.getVersion -> this', this)
+    if (this.isNew) return
+
+    const original = await (this.constructor as any).findOne({ _id: this._id })
+
+    if (checkRequired(options, undefined, this as DocumentWithHistory<unknown>)) return
+    await saveDiffObject(this, original, this.toObject({ depopulate: true }), options)
+  })
 
   schema.pre('findOneAndUpdate', function (next) {
     if (checkRequired(options, this)) { return next() }

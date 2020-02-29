@@ -55,15 +55,15 @@ export interface PluginOptions {
 }
 
 export interface ModelWithHistory<T extends Document> extends Model<T> {
-  getHistories: (id: Schema.Types.ObjectId) => Promise<GetHistories[]>
-  getDiffs: (id: Schema.Types.ObjectId) => Promise<GetDiffs<T>[]>
+  getHistory: (id: Schema.Types.ObjectId) => Promise<GetHistories[]>
+  getHistoryDiffs: (id: Schema.Types.ObjectId) => Promise<GetDiffs<T>[]>
   getVersion: (id: Schema.Types.ObjectId) => Promise<T>
 }
 
 export type DocumentWithHistory<Interface> = Interface & Document & {
   __user?: any
   __reason?: string
-  getHistories: (expandableFields?: string[]) => Promise<GetHistories[]>
-  getDiffs: (opts?) => Promise<GetDiffs<Interface & Document>[]>
+  getHistory: (expandableFields?: string[]) => Promise<GetHistories[]>
+  getHistoryDiffs: (opts?) => Promise<GetDiffs<Interface & Document>[]>
   getVersion: (version: number, queryOpts?) => Promise<Interface>
 }

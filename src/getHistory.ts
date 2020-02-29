@@ -38,7 +38,7 @@ export const getVersion = (model: Model<any>, id: Schema.Types.ObjectId, version
     })
 }
 
-export const getDiffs = (modelName: string, id: Schema.Types.ObjectId, opts?, cb?) => {
+export const getHistoryDiffs = (modelName: string, id: Schema.Types.ObjectId, opts?, cb?) => {
   opts = opts || {}
   if (typeof opts === 'function') {
     cb = opts
@@ -56,7 +56,7 @@ export const getDiffs = (modelName: string, id: Schema.Types.ObjectId, opts?, cb
     })
 }
 
-export const getHistories = (modelName: string, id: Schema.Types.ObjectId, expandableFields: any[] = [], cb?) => {
+export const getHistory = (modelName: string, id: Schema.Types.ObjectId, expandableFields: any[] = [], cb?) => {
   // handle if last param is supposed to be callback
   if (typeof expandableFields === 'function') {
     cb = expandableFields

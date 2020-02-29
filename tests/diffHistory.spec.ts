@@ -34,10 +34,10 @@ describe('diffHistory', () => {
 
     const a = await testsModel.findOneAndUpdate({ a: 'hi' }, { a: 'ho' }, { __user: 'user2' } as any)
 
-    expect(await testsModel.getHistories(tests._id)).toHaveLength(1)
-    expect(await testsModel.getDiffs(tests._id)).toHaveLength(1)
-    expect(await tests.getHistories()).toHaveLength(1)
-    expect(await tests.getDiffs()).toHaveLength(1)
+    expect(await testsModel.getHistory(tests._id)).toHaveLength(1)
+    expect(await testsModel.getHistoryDiffs(tests._id)).toHaveLength(1)
+    expect(await tests.getHistory()).toHaveLength(1)
+    expect(await tests.getHistoryDiffs()).toHaveLength(1)
   })
 
   it('should add history when using save', async () => {
@@ -49,10 +49,10 @@ describe('diffHistory', () => {
     tests.__user = 'user2'
     await tests.save()
 
-    expect(await testsModel.getHistories(tests._id)).toHaveLength(1)
-    expect(await testsModel.getDiffs(tests._id)).toHaveLength(1)
-    expect(await tests.getHistories()).toHaveLength(1)
-    expect(await tests.getDiffs()).toHaveLength(1)
+    expect(await testsModel.getHistory(tests._id)).toHaveLength(1)
+    expect(await testsModel.getHistoryDiffs(tests._id)).toHaveLength(1)
+    expect(await tests.getHistory()).toHaveLength(1)
+    expect(await tests.getHistoryDiffs()).toHaveLength(1)
   })
 
   /* it('should do something', async () => {
@@ -74,23 +74,23 @@ describe('diffHistory', () => {
     await tests.save()
 
     console.log('CL: tests', tests)
-    // tests.getDiffs()
+    // tests.getHistoryDiffs()
 
     // const res = await getHistories('Tests', tests._id)
-    // const res = await testsModel.getHistories('Tests', tests._id)
-    // const res = await testsModel.getDiffs('Tests', tests._id)
-    const resStatic = await testsModel.getDiffs(tests._id)
+    // const res = await testsModel.getHistory('Tests', tests._id)
+    // const res = await testsModel.getHistoryDiffs('Tests', tests._id)
+    const resStatic = await testsModel.getHistoryDiffs(tests._id)
     console.log('CL: resStatic', resStatic)
     // console.log('CL: resStatic', resStatic)
 
-    const resInstance = await tests.getHistories()
+    const resInstance = await tests.getHistory()
     console.log('CL: resInstance', resInstance)
     // console.log('CL: resInstance', resInstance)
 
 
     const resInstanceVers = await tests.getVersion(1)
     // console.log('CL: resInstanceVers', resInstanceVers)
-    // const res = await testsModel.getDiffs()
+    // const res = await testsModel.getHistoryDiffs()
     // console.log('CL: res[1].diff.docArray', res[1].diff.docArray)
     // console.log('CL: res[1].diff', res[1].diff.arr?._0[2])
     // console.log('CL: res', res[1].diff.arr ? res[1].diff.docArray : 'nope')
@@ -103,7 +103,7 @@ describe('diffHistory', () => {
     // schema2.a = 'b'
     // await schema2.save()
 
-    // const resSchema2 = await tests.getDiffs('Schema2', schema2._id)
+    // const resSchema2 = await tests.getHistoryDiffs('Schema2', schema2._id)
     // console.log('CL: resSchema2', resSchema2)
 
 
