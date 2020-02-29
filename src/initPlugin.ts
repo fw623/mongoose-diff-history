@@ -43,9 +43,7 @@ export async function initPlugin (schema: Schema<any>, { modelName, ...options }
 
   // add middlewares
   schema.pre('save', async function (): Promise<void> {
-    if (this.isNew) return
-
-    const original = await (this.constructor as any).findOne({ _id: this._id })
+    const original = await this.model(modelName).findOne({ _id: this._id }) ?? {}
 
     if (checkRequired(options, undefined, this as DocumentWithHistory<unknown>)) return
     await saveDiffObject(this, original, this.toObject({ depopulate: true }), options)

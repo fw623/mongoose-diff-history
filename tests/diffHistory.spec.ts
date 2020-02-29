@@ -34,10 +34,10 @@ describe('diffHistory', () => {
 
     const a = await testsModel.findOneAndUpdate({ a: 'hi' }, { a: 'ho' }, { __user: 'user2' } as any)
 
-    expect(await testsModel.getHistory(tests._id)).toHaveLength(1)
-    expect(await testsModel.getHistoryDiffs(tests._id)).toHaveLength(1)
-    expect(await tests.getHistory()).toHaveLength(1)
-    expect(await tests.getHistoryDiffs()).toHaveLength(1)
+    expect(await testsModel.getHistory(tests._id)).toHaveLength(2)
+    expect(await testsModel.getHistoryDiffs(tests._id)).toHaveLength(2)
+    expect(await tests.getHistory()).toHaveLength(2)
+    expect(await tests.getHistoryDiffs()).toHaveLength(2)
   })
 
   it('should add history when using save', async () => {
@@ -49,10 +49,10 @@ describe('diffHistory', () => {
     tests.__user = 'user2'
     await tests.save()
 
-    expect(await testsModel.getHistory(tests._id)).toHaveLength(1)
-    expect(await testsModel.getHistoryDiffs(tests._id)).toHaveLength(1)
-    expect(await tests.getHistory()).toHaveLength(1)
-    expect(await tests.getHistoryDiffs()).toHaveLength(1)
+    expect(await testsModel.getHistory(tests._id)).toHaveLength(2)
+    expect(await testsModel.getHistoryDiffs(tests._id)).toHaveLength(2)
+    expect(await tests.getHistory()).toHaveLength(2)
+    expect(await tests.getHistoryDiffs()).toHaveLength(2)
   })
 
   it('should add history when using update', async () => {
@@ -63,10 +63,10 @@ describe('diffHistory', () => {
     tests.a = 'ho'
     await tests.update(tests, { __user: 'user2' })
 
-    expect(await testsModel.getHistory(tests._id)).toHaveLength(1)
-    expect(await testsModel.getHistoryDiffs(tests._id)).toHaveLength(1)
-    expect(await tests.getHistory()).toHaveLength(1)
-    expect(await tests.getHistoryDiffs()).toHaveLength(1)
+    expect(await testsModel.getHistory(tests._id)).toHaveLength(2)
+    expect(await testsModel.getHistoryDiffs(tests._id)).toHaveLength(2)
+    expect(await tests.getHistory()).toHaveLength(2)
+    expect(await tests.getHistoryDiffs()).toHaveLength(2)
   })
 
   it('should add history when using updateOne', async () => {
@@ -77,10 +77,10 @@ describe('diffHistory', () => {
     tests.a = 'ho'
     await tests.updateOne(tests, { __user: 'user2' })
 
-    expect(await testsModel.getHistory(tests._id)).toHaveLength(1)
-    expect(await testsModel.getHistoryDiffs(tests._id)).toHaveLength(1)
-    expect(await tests.getHistory()).toHaveLength(1)
-    expect(await tests.getHistoryDiffs()).toHaveLength(1)
+    expect(await testsModel.getHistory(tests._id)).toHaveLength(2)
+    expect(await testsModel.getHistoryDiffs(tests._id)).toHaveLength(2)
+    expect(await tests.getHistory()).toHaveLength(2)
+    expect(await tests.getHistoryDiffs()).toHaveLength(2)
   })
 
   it('should fail when __user is not set but required', async () => {
@@ -130,7 +130,7 @@ describe('diffHistory', () => {
     // console.log('CL: res[1].diff.docArray', res[1].diff.docArray)
     // console.log('CL: res[1].diff', res[1].diff.arr?._0[2])
     // console.log('CL: res', res[1].diff.arr ? res[1].diff.docArray : 'nope')
-    // expect(res).toHaveLength(1)
+    // expect(res).toHaveLength(2)
 
 
 
