@@ -29,19 +29,19 @@ export const getHistoryDiffs = async <T extends Document>(model: Model<T>, id: S
 }
 
 export const getHistory = async <T extends Document>(model: Model<T>, id: Schema.Types.ObjectId, expandableFields: any[] = []): Promise<GetHistory[]> => {
-  const histories: GetHistory[] = []
+  const history: GetHistory[] = []
 
   await historyModel.find({ collectionName: model.modelName, collectionId: id })
     .lean()
     .cursor()
-    .eachAsync((history: HistoryDiff<T>) => {
+    .eachAsync((historyDiff: HistoryDiff<T>) => {
       const changedValues: string[] = []
       const changedFields: string[] = []
-      for (const key in history.diff) {
-        if (history.diff.hasOwnProperty(key)) {
+      for (const key in historyDiff.diff) {
+        if (historyDiff.diff.hasOwnProperty(key)) {
           if (expandableFields.indexOf(key) > -1) {
-            const oldValue = history.diff[key][0]
-            const newValue = history.diff[key][1]
+            const oldValue = historyDiff.diff[key][0]
+            const newValue = historyDiff.diff[key][1]
             changedValues.push(key + ' from ' + oldValue + ' to ' + newValue)
           } else {
             changedFields.push(key)
@@ -50,14 +50,14 @@ export const getHistory = async <T extends Document>(model: Model<T>, id: Schema
       }
 
       const comment = 'modified ' + changedFields.concat(changedValues).join(', ')
-      histories.push({
-        changedBy: history.user,
-        changedAt: history.createdAt,
-        updatedAt: history.updatedAt,
-        reason: history.reason,
+      history.push({
+        changedBy: historyDiff.user,
+        changedAt: historyDiff.createdAt,
+        updatedAt: historyDiff.updatedAt,
+        reason: historyDiff.reason,
         comment: comment
       })
     })
 
-  return histories
+  return history
 }
